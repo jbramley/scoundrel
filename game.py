@@ -140,28 +140,23 @@ def play_game():
         cards_in_play = len(cards_in_room)
 
         has_consumed_potion_this_turn = False
-        still_fighting = True
 
         print("Current room: " + " ".join(map(str, cards_in_room)))
         did_flee = False
-        while still_fighting:
-            can_move_on = cards_in_play == 1
+        while cards_in_play > 1:
             can_flee = not fled_last_turn
 
             def is_valid(text):
                 try:
                     return 0 < int(text) <= cards_in_play
                 except ValueError:
-                    return (text.lower() == "g" and can_move_on) or (
-                        text.lower() == "f" and can_flee
-                    )
+                    return text.lower() == "f" and can_flee
 
             prompt_text = "What would you like to do?\n"
             prompt_text += "\n".join(
                 f"{i + 1}) Take the {card}" for i, card in enumerate(cards_in_room)
             )
-            if can_move_on:
-                prompt_text += "\n[G]o to the next room"
+
             if can_flee:
                 prompt_text += "\n[F]lee the room"
             print(prompt_text)
@@ -171,8 +166,6 @@ def play_game():
                     is_valid, error_message="Invalid input"
                 ),
             )
-            if choice == "g":
-                break
             if choice == "f":
                 random.shuffle(cards_in_room)
                 deck.deck.extend(cards_in_room)
@@ -240,11 +233,6 @@ def play_game():
                 break
         fled_last_turn = did_flee
 
-        # For each turn:
-        # 1. Deal out up to min(4, len(deck)) cards
-        # 2. Player can run (if did not run last turn)
-        # 3. Otherwise player must pick up at least 3 cards
-        # 4. If player health <= 0, end turn and game
     if player and not deck:
         print(
             "You make your way out of the dungeon, dusting yourself off. You have emerged victorious!"
